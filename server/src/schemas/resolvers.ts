@@ -50,7 +50,13 @@ const resolvers = {
       const token = signToken(user.username, user.email, user._id);
       return { token, user };
     },
-  }
+    addUser: async (_parent: any, { username, email, password }: { username: string; email: string; password: string }): Promise<{ token: string; user: User }> => {
+      const user = await User.create({ username, email, password });
+      const token = signToken(user.username, user.email, user._id);
+      return { token, user };
+    }
+  },
+
 };
 
 export default resolvers;
