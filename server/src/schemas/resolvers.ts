@@ -50,8 +50,8 @@ const resolvers = {
       const token = signToken(user.username, user.email, user._id);
       return { token, user };
     },
-    addUser: async (_parent: any, { username, email, password }: { username: string; email: string; password: string }): Promise<{ token: string; user: User }> => {
-      const user = await User.create({ username, email, password });
+    addUser: async (_parent: any, { input }: { input: User }): Promise<{ token: string; user: User }> => {
+      const user = await User.create(input);
       const token = signToken(user.username, user.email, user._id);
       return { token, user };
     },
@@ -61,7 +61,7 @@ const resolvers = {
           { _id: context.user.id },
           { $addToSet: { savedBooks: input } },
           { new: true, runValidators: true }
-        );
+        ).populate('savedBooks');
         
         return updatedUser;
       }
@@ -73,7 +73,7 @@ const resolvers = {
           { _id: context.user.id },
           { $pull: { savedBooks: { bookId } } },
           { new: true }
-        );
+        ).populate('savedBooks');
         return updatedUser;
       }
       return null;

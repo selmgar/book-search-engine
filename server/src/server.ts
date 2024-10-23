@@ -6,6 +6,9 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { authenticateToken } from './services/auth.js';
 import resolvers from './schemas/resolvers.js';
 import typeDefs from './schemas/typeDefs.js';
+import type { Request, Response } from 'express';
+import { fileURLToPath } from 'url';
+
 
 const server = new ApolloServer({
   typeDefs,
@@ -30,7 +33,10 @@ const startApolloServer = async () => {
 
   // if we're in production, serve client/build as static assets
   if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/build')));
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    console.log( 'Setting static client files' );
+    app.use(express.static(path.join(__dirname, '../../client/dist')));
   }
 
   app.listen(PORT, () => {
