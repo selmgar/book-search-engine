@@ -1,3 +1,4 @@
+
 import User from "../models/User.js";
 import { AuthenticationError, signToken } from "../services/auth.js";
 
@@ -26,9 +27,8 @@ interface Context {
 const resolvers = {
   Query: {
     me: async (_parent: any, _args: any, context: Context): Promise<User | null> => {
-      console.log('test', context.user);
       if (context.user) {
-        const user = await User.findOne({ _id: context.user.id });
+        const user = await User.findOne({ _id: context.user.id }).populate('savedBooks'); 
         return user;
       }
       throw AuthenticationError;
@@ -37,16 +37,16 @@ const resolvers = {
   Mutation: {
     login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<{ token: string; user: User }> => {
       const user = await User.findOne({ email });
-      console.log('Found user', user);
+
       if (!user) {
         throw AuthenticationError;
       }
-      // TODO ASK LIEF ABOUT THIS - THE BELOW CODE IS NOT WORKING AS EXPECTED
-      // const correctPw = await user.isCorrectPassword(password);
-      // console.log('Password is correct', correctPw);
-      // if (!correctPw) {
-      //   throw AuthenticationError;
-      // }
+
+      const correctPw = await user.isCorrectPassword(password);
+
+      if (!correctPw) {
+        throw AuthenticationError;
+      }
       const token = signToken(user.username, user.email, user._id);
       return { token, user };
     },
@@ -54,9 +54,31 @@ const resolvers = {
       const user = await User.create({ username, email, password });
       const token = signToken(user.username, user.email, user._id);
       return { token, user };
+    },
+    saveBook: async (_parent: any, { input }: { input: Book }, context: Context): Promise<User | null> => {
+      if (context.user) {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user.id },
+          { $addToSet: { savedBooks: input } },
+          { new: true, runValidators: true }
+        );
+        
+        return updatedUser;
+      }
+      return null;
+    },
+    deleteBook: async (_parent: any, { bookId }: { bookId: string }, context: Context): Promise<User | null> => {
+      if (context.user) {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user.id },
+          { $pull: { savedBooks: { bookId } } },
+          { new: true }
+        );
+        return updatedUser;
+      }
+      return null;
     }
-  },
-
+  }
 };
 
 export default resolvers;

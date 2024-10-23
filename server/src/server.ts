@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'node:path';
 import db from './config/connection.js';
-import routes from './routes/index.js';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { authenticateToken } from './services/auth.js';
@@ -33,9 +32,6 @@ const startApolloServer = async () => {
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../client/build')));
   }
-
-  app.use(routes);
-
 
   app.listen(PORT, () => {
     console.log(`API server running on port ${PORT}!`);
