@@ -67,7 +67,7 @@ const resolvers = {
       }
       return null;
     },
-    deleteBook: async (_parent: any, { bookId }: { bookId: string }, context: Context): Promise<User | null> => {
+    removeBook: async (_parent: any, { bookId }: { bookId: string }, context: Context): Promise<User | null> => {
       if (context.user) {
         const updatedUser = await User.findOneAndUpdate(
           { _id: context.user.id },
