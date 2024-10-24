@@ -6,7 +6,6 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { authenticateToken } from './services/auth.js';
 import resolvers from './schemas/resolvers.js';
 import typeDefs from './schemas/typeDefs.js';
-import type { Request, Response } from 'express';
 import { fileURLToPath } from 'url';
 
 
